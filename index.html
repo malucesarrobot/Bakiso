@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Bakiso Gunzo Nria Nzazi · Mensalidades 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Crimson Text',Georgia,serif;background:#F2E6CC;color:#2C1206;min-height:100vh}
+button,input,select{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#F2E6CC}
+::-webkit-scrollbar-thumb{background:#C88C18;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey:            "AIzaSyD6gNxFFwL6naEjLifnXbTT03Ua0UNxED4",
+  authDomain:        "bakiso.firebaseapp.com",
+  databaseURL:       "https://bakiso-default-rtdb.firebaseio.com",
+  projectId:         "bakiso",
+  storageBucket:     "bakiso.firebasestorage.app",
+  messagingSenderId: "446429581027",
+  appId:             "1:446429581027:web:62a95553f6405dc5a53fd6"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
+
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef} = React;
+
+// ─── MEMBROS INICIAIS (semente — só usados na 1ª vez) ────────────────────────
+const SEED=[
+  {id:1,  dijina:"ALUKA",           nome:"Thalita",           taxa:50},
+  {id:2,  dijina:"KI'AMUÍJI",       nome:"Iris",              taxa:50},
+  {id:3,  dijina:"KIAMBELA",        nome:"Brunna",            taxa:50},
+  {id:4,  dijina:"KILUNDA",         nome:"Aurineide",         taxa:50},
+  {id:5,  dijina:"MONA KIANVULA",   nome:"Barbara",           taxa:50},
+  {id:6,  dijina:"BAND'ANGE",       nome:"Wenderson",         taxa:50},
+  {id:7,  dijina:"DANDAISÔ",        nome:"Aurilândia",        taxa:50},
+  {id:8,  dijina:"DANDALEMIN",      nome:"Aury",              taxa:50},
+  {id:9,  dijina:"DANDALEWILA",     nome:"Priscila",          taxa:50},
+  {id:10, dijina:"DIANSILÊ",        nome:"Vanessa",           taxa:30},
+  {id:11, dijina:"DIASAMBU",        nome:"Liziane",           taxa:50},
+  {id:12, dijina:"DILAKENA",        nome:"Edilene",           taxa:50},
+  {id:13, dijina:"DIMOLOJI",        nome:"David",             taxa:50},
+  {id:14, dijina:"DJA'MBELE",       nome:"Walex",             taxa:50},
+  {id:15, dijina:"NVULA",           nome:"Raiany",            taxa:50},
+  {id:16, dijina:"IREUWASIMBI",     nome:"Luiz Fábio",        taxa:50},
+  {id:17, dijina:"KAFULUPANZO",     nome:"Horrana",           taxa:30},
+  {id:18, dijina:"KIANZOLO",        nome:"Gabriel",           taxa:50},
+  {id:19, dijina:"KIÁSEFUN",        nome:"João Carlos",       taxa:50},
+  {id:20, dijina:"KILUANDÊ",        nome:"Felipe",            taxa:50},
+  {id:21, dijina:"KISUMBURÊ",       nome:"André Luiz",        taxa:50},
+  {id:22, dijina:"KIZANGALA",       nome:"Ana Cláudia",       taxa:50},
+  {id:23, dijina:"KOSILUANJI",      nome:"Sérgio",            taxa:50},
+  {id:24, dijina:"KUMBELAZAZI",     nome:"Moreno",            taxa:30},
+  {id:25, dijina:"LUANDEMIM",       nome:"Mineia",            taxa:50},
+  {id:26, dijina:"MALUNGO",         nome:"Malungo",           taxa:50},
+  {id:27, dijina:"MANIAZI",         nome:"Clécio",            taxa:50},
+  {id:28, dijina:"MAZA'DIKILA",     nome:"Querem",            taxa:50},
+  {id:29, dijina:"MAZAKENAN",       nome:"Mileide",           taxa:50},
+  {id:30, dijina:"MBANDAEUAMAZA",   nome:"Yndiara",           taxa:30},
+  {id:31, dijina:"MONA DILUPO",     nome:"Neide",             taxa:50},
+  {id:32, dijina:"MUKIÁLA",         nome:"Michelle",          taxa:50},
+  {id:33, dijina:"MUTAKUERAN",      nome:"Cleiton",           taxa:30},
+  {id:34, dijina:"MUKANZELÊ",       nome:"Guilherme",         taxa:50},
+  {id:35, dijina:"N'GUAIALÊ",       nome:"Flora",             taxa:30},
+  {id:36, dijina:"N'KENDA'MULENGE", nome:"Lau Lemos",         taxa:50},
+  {id:37, dijina:"NBUKADILA",       nome:"Kananda",           taxa:30},
+  {id:38, dijina:"NDEKELU",         nome:"Júnior Pereira",    taxa:50},
+  {id:39, dijina:"NDUMBE",          nome:"Alexandre Jabu",    taxa:50},
+  {id:40, dijina:"NDUMBY",          nome:"Alysson",           taxa:50},
+  {id:41, dijina:"U'NDALA",         nome:"Ana Luísa",         taxa:30},
+  {id:42, dijina:"NDUMBE",          nome:"Camila Mychetty",   taxa:50},
+  {id:43, dijina:"NDUMBE",          nome:"Celso",             taxa:50},
+  {id:44, dijina:"NDUMBE",          nome:"Fernanda de Fátima",taxa:50},
+  {id:45, dijina:"NDUMBE",          nome:"Ísis",              taxa:50},
+  {id:46, dijina:"NDUMBE",          nome:"Jader Bruno",       taxa:50},
+  {id:47, dijina:"NDUMBE",          nome:"Kamilla",           taxa:50},
+  {id:48, dijina:"NDUMBE",          nome:"Lindinalva (Bebê)", taxa:50},
+  {id:49, dijina:"NDUMBE",          nome:"Litiely (Lily)",    taxa:50},
+  {id:50, dijina:"NDUMBE",          nome:"Lucas Camilo",      taxa:50},
+  {id:51, dijina:"NDUMBE",          nome:"Matheus",           taxa:50},
+  {id:52, dijina:"NDUMBE",          nome:"Nailine",           taxa:50},
+  {id:53, dijina:"NDUMBE",          nome:"Robermar",          taxa:50},
+  {id:54, dijina:"NDUMBE",          nome:"Sabrynna Karolari", taxa:50},
+  {id:55, dijina:"NDUMBE",          nome:"Sophia (Flora)",    taxa:30},
+  {id:56, dijina:"NDUMBE",          nome:"Sophia (Vanessa)",  taxa:30},
+  {id:57, dijina:"NDUMBE",          nome:"Suzy Kleizy",       taxa:50},
+  {id:58, dijina:"NDUMBE",          nome:"Sarah",             taxa:50},
+  {id:59, dijina:"NDUMBE",          nome:"Karen Cristiellen", taxa:50},
+  {id:60, dijina:"NDUMBE",          nome:"Conceição Ap.",     taxa:50},
+  {id:61, dijina:"NJEBILU",         nome:"Davi",              taxa:30},
+  {id:62, dijina:"NJILA KARIANGA",  nome:"Fábio",             taxa:50},
+  {id:63, dijina:"OYACI",           nome:"Marlene",           taxa:50},
+  {id:64, dijina:"TALAMÊNE",        nome:"Jonathan",          taxa:50},
+  {id:65, dijina:"TALANDULO",       nome:"Fernanda",          taxa:30},
+  {id:66, dijina:"TALANDULU",       nome:"Adriana",           taxa:30},
+  {id:67, dijina:"TUA'ÁLALA",       nome:"Denilson",          taxa:50},
+  {id:68, dijina:"KAUILA",          nome:"—",                 taxa:50},
+  {id:69, dijina:"UAZANDÊ",         nome:"Daniele",           taxa:40},
+];
+
+const MC=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MF=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const CICLO=[null,"I","F","N"];
+const SLBL={I:"Individual",F:"Família",N:"Negociado"};
+
+// ─── PALETA ───────────────────────────────────────────────────────────────────
+const C={
+  bg:"#F2E6CC",bgAlt:"#EDD9B0",surf:"#FFFFFF",surf2:"#FBF4E8",
+  brd:"#D9C090",brd2:"#C09860",
+  ink:"#2C1206",inkMid:"#6B3A1A",inkFade:"#9B6A3A",
+  terra:"#C05A35",siena:"#8B3515",ocre:"#C88C18",dour:"#D4A020",verm:"#8B1616",branco:"#FFFFFF",
+  ok:"#2A6040",info:"#1A4A6A",neg:"#5A4A10",
+  stIBg:"#EBF5EF",stIFg:"#1A5030",stIBd:"#5A9070",
+  stFBg:"#EBF2F8",stFFg:"#0A3A60",stFBd:"#4A7AA0",
+  stNBg:"#FBF5E0",stNFg:"#4A3A08",stNBd:"#908030",
+  stABg:"#FDF0E8",stAFg:"#6A2010",stABd:"#C07050",
+};
+const fmt=v=>`R$ ${Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2})}`;
+const stBg=s=>s==="I"?C.stIBg:s==="F"?C.stFBg:s==="N"?C.stNBg:C.stABg;
+const stFg=s=>s==="I"?C.stIFg:s==="F"?C.stFFg:s==="N"?C.stNFg:C.stAFg;
+const stBd=s=>s==="I"?C.stIBd:s==="F"?C.stFBd:s==="N"?C.stNBd:C.stABd;
+
+// ─── VISUAIS BASE ─────────────────────────────────────────────────────────────
+const Stripe=()=>(
+  <div style={{display:"flex",height:6}}>
+    {[C.verm,C.siena,C.terra,C.ocre,C.dour,C.ocre,C.terra,C.siena,C.verm].map((c,i)=>(
+      <div key={i} style={{flex:1,background:c}}/>
+    ))}
+  </div>
+);
+const Divider=({color=C.ocre})=>(
+  <div style={{display:"flex",alignItems:"center",gap:8,margin:"10px 0"}}>
+    <div style={{flex:1,height:1,background:`linear-gradient(to right,transparent,${color}66)`}}/>
+    <span style={{color,fontSize:10,letterSpacing:5}}>◆ ◆ ◆</span>
+    <div style={{flex:1,height:1,background:`linear-gradient(to left,transparent,${color}66)`}}/>
+  </div>
+);
+const Pill=({st,onClick})=>(
+  <span onClick={onClick} title={onClick?"Clique para alternar":""} style={{
+    background:stBg(st),color:stFg(st),border:`1px solid ${stBd(st)}`,
+    borderRadius:4,padding:"3px 10px",fontSize:11,
+    cursor:onClick?"pointer":"default",userSelect:"none",
+    minWidth:76,textAlign:"center",display:"inline-block",letterSpacing:.3,
+  }}>{st?SLBL[st]:"Em aberto"}</span>
+);
+
+// ─── GRÁFICO ──────────────────────────────────────────────────────────────────
+function BarChart({data,activeMonth}){
+  const maxV=Math.max(...data.map(d=>Math.max(d.arr||0,d.prev||0,(d.arr||0)+(d.ab||0))),500);
+  const H=160,PW=40,GAP=6,W=data.length*(PW+GAP);
+  return(
+    <svg viewBox={`0 0 ${W} ${H+24}`} style={{width:"100%",height:"auto",display:"block"}}>
+      {data.map((d,i)=>{
+        const x=i*(PW+GAP);
+        const arrH=Math.max((d.arr/maxV)*H,0);
+        const prevH=Math.max((d.prev/maxV)*H,0);
+        const abH=Math.max((d.ab/maxV)*H,0);
+        const act=i+1===activeMonth;
+        return(
+          <g key={i}>
+            {d.prev>0&&<rect x={x} y={H-prevH} width={PW} height={prevH} fill={C.ocre+"33"} rx={3}/>}
+            {d.ab>0&&<rect x={x} y={H-arrH-abH} width={PW} height={abH} fill={C.terra+"55"} rx={3}/>}
+            {d.arr>0&&<rect x={x} y={H-arrH} width={PW} height={arrH} fill={act?C.dour:C.terra} rx={3}/>}
+            <text x={x+PW/2} y={H+16} textAnchor="middle" fontSize={10}
+              fill={act?C.siena:C.inkFade} fontWeight={act?"bold":"normal"}>{d.label}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── MODAL: PAGAMENTOS POR MÊS ────────────────────────────────────────────────
+function ModalPagamentos({mb,pays,toggle,onClose}){
+  const gp=m=>pays[mb.id]?.[m]??null;
+  const mpg=MC.filter((_,i)=>gp(i+1)!==null).length;
+  const tot=MC.reduce((s,_,i)=>s+(gp(i+1)?mb.taxa:0),0);
+  const esp=mb.taxa*12;
+  const pct=Math.round((tot/esp)*100);
+  const setAll=status=>{
+    MC.forEach((_,i)=>{
+      const m=i+1; let cur=pays[mb.id]?.[m]??null;
+      if(cur===status)return;
+      for(let x=0;x<4;x++){toggle(mb.id,m);const nxt=CICLO[(CICLO.indexOf(cur)+1)%4];cur=nxt;if(cur===status)break;}
+    });
+  };
+  return(
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(44,18,6,.6)",backdropFilter:"blur(2px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:C.surf,borderRadius:12,width:"100%",maxWidth:540,overflow:"hidden",boxShadow:"0 20px 60px rgba(44,18,6,.3)",border:`1px solid ${C.brd2}`}}>
+        <Stripe/>
+        <div style={{background:`linear-gradient(135deg,${C.siena},${C.verm})`,padding:"18px 24px 14px",textAlign:"center"}}>
+          <div style={{fontSize:9,color:"#FFDDBB",letterSpacing:6,textTransform:"uppercase",marginBottom:5}}>Bakiso Gunzo · Nação Angola</div>
+          <div style={{fontSize:22,color:C.branco,letterSpacing:3,fontFamily:"'Cinzel',serif",fontStyle:"italic"}}>{mb.dijina}</div>
+          <div style={{fontSize:13,color:"#FFDDBB",marginTop:2}}>{mb.nome}</div>
+          <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:10,fontSize:12}}>
+            <span style={{color:"#FFDDBB"}}>Taxa: <strong style={{color:C.branco}}>{fmt(mb.taxa)}/mês</strong></span>
+            <span style={{color:"#FFDDBB"}}>Pagos: <strong style={{color:mpg>0?"#90EE90":"#FFB0B0"}}>{mpg}/12</strong></span>
+            <span style={{color:"#FFDDBB"}}>Total: <strong style={{color:"#FFE090"}}>{fmt(tot)}</strong></span>
+          </div>
+        </div>
+        <div style={{padding:"16px 20px",background:C.surf2}}>
+          <div style={{fontSize:11,color:C.inkFade,textAlign:"center",marginBottom:12}}>
+            Clique no mês para alternar · Em aberto → Individual → Família → Negociado
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+            {MC.map((m,i)=>{
+              const st=gp(i+1);const fut=i+1>5;
+              return(
+                <button key={m} onClick={()=>toggle(mb.id,i+1)} style={{background:stBg(st),border:`1px solid ${stBd(st)}`,borderRadius:8,padding:"10px 6px",cursor:"pointer",textAlign:"center",opacity:fut?.75:1,transition:"all .12s"}}>
+                  <div style={{fontSize:13,color:C.ink,fontWeight:"bold",marginBottom:3}}>{m}</div>
+                  <div style={{fontSize:10,color:stFg(st)}}>{st?SLBL[st]:"—"}</div>
+                  {st&&<div style={{fontSize:9,color:stFg(st),opacity:.8,marginTop:2}}>R${mb.taxa}</div>}
+                  {fut&&!st&&<div style={{fontSize:9,color:C.inkFade,marginTop:2}}>futuro</div>}
+                </button>
+              );
+            })}
+          </div>
+          <div style={{marginTop:14}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.inkFade,marginBottom:5}}>
+              <span>Progresso anual</span><span style={{color:C.terra,fontWeight:"bold"}}>{pct}%</span>
+            </div>
+            <div style={{background:C.bgAlt,borderRadius:4,height:10,overflow:"hidden"}}>
+              <div style={{height:"100%",borderRadius:4,transition:"width .4s",width:`${Math.min(pct,100)}%`,background:`linear-gradient(90deg,${C.verm},${C.terra},${C.ocre},${C.dour})`}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.inkFade,marginTop:4}}>
+              <span>{fmt(tot)} pagos</span><span>{fmt(esp-tot)} restantes</span>
+            </div>
+          </div>
+          <Divider color={C.ocre}/>
+          <div style={{display:"flex",gap:7,flexWrap:"wrap",alignItems:"center"}}>
+            {[{l:"✓ Todos Individual",st:"I",bg:C.ok},{l:"⌂ Todos Família",st:"F",bg:C.info},{l:"≈ Todos Negociado",st:"N",bg:C.neg},{l:"✕ Limpar",st:null,bg:C.verm}].map(a=>(
+              <button key={a.l} onClick={()=>setAll(a.st)} style={{background:a.bg+"22",border:`1px solid ${a.bg}66`,color:a.bg,borderRadius:5,padding:"5px 10px",cursor:"pointer",fontSize:11,fontWeight:"bold"}}>{a.l}</button>
+            ))}
+            <button onClick={onClose} style={{marginLeft:"auto",background:C.dour+"22",border:`1px solid ${C.dour}88`,color:C.siena,borderRadius:5,padding:"5px 18px",cursor:"pointer",fontSize:11,fontWeight:"bold"}}>Fechar</button>
+          </div>
+        </div>
+        <Stripe/>
+      </div>
+    </div>
+  );
+}
+
+// ─── MODAL: CADASTRO / EDIÇÃO DE MEMBRO ───────────────────────────────────────
+function ModalMembro({membro, onSave, onDelete, onClose}){
+  const novo = !membro;
+  const [dijina, setDijina] = useState(membro?.dijina || "");
+  const [nome,   setNome]   = useState(membro?.nome   || "");
+  const [taxa,   setTaxa]   = useState(membro?.taxa   || 50);
+  const [conf,   setConf]   = useState(false);
+
+  const INP={background:C.surf2,border:`1px solid ${C.brd2}`,color:C.ink,borderRadius:6,padding:"9px 12px",fontSize:15,outline:"none",width:"100%"};
+
+  return(
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(44,18,6,.6)",backdropFilter:"blur(2px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1001,padding:16}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:C.surf,borderRadius:12,width:"100%",maxWidth:420,overflow:"hidden",boxShadow:"0 20px 60px rgba(44,18,6,.3)",border:`1px solid ${C.brd2}`}}>
+        <Stripe/>
+        <div style={{background:`linear-gradient(135deg,${C.siena},${C.ocre})`,padding:"16px 22px",textAlign:"center"}}>
+          <div style={{fontFamily:"'Cinzel',serif",fontSize:14,color:C.branco,letterSpacing:2}}>
+            {novo ? "NOVO MEMBRO" : "EDITAR MEMBRO"}
+          </div>
+          {!novo&&<div style={{fontSize:12,color:"rgba(255,230,180,.8)",marginTop:3,fontStyle:"italic"}}>{membro.dijina}</div>}
+        </div>
+
+        <div style={{padding:"20px 22px",background:C.surf2}}>
+          {[
+            {l:"Dijina (nome no santo)",v:dijina,set:setDijina,ph:"Ex: NDUMBE",up:true},
+            {l:"Nome civil",            v:nome,  set:setNome,  ph:"Nome completo"},
+          ].map(f=>(
+            <div key={f.l} style={{marginBottom:14}}>
+              <div style={{fontSize:11,color:C.inkFade,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>{f.l}</div>
+              <input value={f.v} onChange={e=>f.set(f.up?e.target.value.toUpperCase():e.target.value)}
+                placeholder={f.ph} style={INP}/>
+            </div>
+          ))}
+
+          <div style={{marginBottom:20}}>
+            <div style={{fontSize:11,color:C.inkFade,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>Mensalidade (R$)</div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {[30,40,50].map(v=>(
+                <button key={v} onClick={()=>setTaxa(v)} style={{
+                  flex:1,padding:"10px",borderRadius:6,cursor:"pointer",fontSize:15,fontWeight:"bold",
+                  background:taxa===v?C.terra+"22":"transparent",
+                  border:`2px solid ${taxa===v?C.terra:C.brd2}`,
+                  color:taxa===v?C.siena:C.inkFade,
+                }}>R$ {v}</button>
+              ))}
+              <div style={{width:"100%",marginTop:8}}>
+                <div style={{fontSize:11,color:C.inkFade,marginBottom:4}}>Ou digite outro valor:</div>
+                <input type="number" value={taxa} onChange={e=>setTaxa(Number(e.target.value))}
+                  min={1} style={{...INP,width:120}}/>
+              </div>
+            </div>
+          </div>
+
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button onClick={()=>{if(!dijina.trim()||!nome.trim())return;onSave({dijina:dijina.trim(),nome:nome.trim(),taxa});}} style={{
+              flex:1,background:C.ok+"22",border:`2px solid ${C.ok}`,color:C.ok,
+              borderRadius:6,padding:"10px",cursor:"pointer",fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:"bold",
+            }}>
+              {novo?"Cadastrar":"Salvar alterações"}
+            </button>
+            <button onClick={onClose} style={{
+              flex:1,background:"transparent",border:`1px solid ${C.brd2}`,color:C.inkFade,
+              borderRadius:6,padding:"10px",cursor:"pointer",fontSize:12,
+            }}>Cancelar</button>
+          </div>
+
+          {!novo&&(
+            <div style={{marginTop:12}}>
+              {!conf
+                ?<button onClick={()=>setConf(true)} style={{width:"100%",background:C.verm+"11",border:`1px solid ${C.verm}44`,color:C.verm,borderRadius:6,padding:"9px",cursor:"pointer",fontSize:12}}>
+                  🗑 Excluir este membro
+                </button>
+                :<div style={{background:C.verm+"11",border:`1px solid ${C.verm}66`,borderRadius:6,padding:"12px",textAlign:"center"}}>
+                  <div style={{fontSize:13,color:C.verm,marginBottom:10}}>
+                    Excluir <strong>{membro.dijina}</strong>? Os pagamentos registrados também serão removidos.
+                  </div>
+                  <div style={{display:"flex",gap:8}}>
+                    <button onClick={onDelete} style={{flex:1,background:C.verm,color:C.branco,border:"none",borderRadius:6,padding:"9px",cursor:"pointer",fontSize:12,fontWeight:"bold"}}>Sim, excluir</button>
+                    <button onClick={()=>setConf(false)} style={{flex:1,background:"transparent",border:`1px solid ${C.brd2}`,color:C.inkFade,borderRadius:6,padding:"9px",cursor:"pointer",fontSize:12}}>Não</button>
+                  </div>
+                </div>
+              }
+            </div>
+          )}
+        </div>
+        <Stripe/>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App(){
+  const [tab,      setTab]     = useState("painel");
+  const [month,    setMonth]   = useState(5);
+  const [members,  setMembers] = useState([]);
+  const [pays,     setPays]    = useState({});
+  const [doas,     setDoas]    = useState([]);
+  const [syncSt,   setSyncSt]  = useState("conectando");
+  const [modalPag, setModalPag]= useState(null); // membro para modal de pagamentos
+  const [modalMbr, setModalMbr]= useState(null); // null | "novo" | membro obj
+  const [filter,   setFilter]  = useState("");
+  const [sort,     setSort]    = useState("id");
+  const [showFm,   setShowFm]  = useState(false);
+  const [form,     setForm]    = useState({nome:"",valor:"",descricao:"",data:"2026-05-11"});
+
+  const fromFB  = useRef(false);
+  const loaded  = useRef(false);
+  const wTimer  = useRef(null);
+
+  // ── Firebase ────────────────────────────────────────────────────────────────
+  useEffect(()=>{
+    const ref = db.ref("bakiso-2026");
+    ref.on("value", snap=>{
+      const data = snap.val()||{};
+      fromFB.current = true;
+
+      // Membros: se ainda não existem no Firebase, semeia com SEED
+      if(data.members){
+        setMembers(Object.values(data.members).sort((a,b)=>a.id-b.id));
+      } else {
+        const obj={};
+        SEED.forEach(m=>{obj[m.id]=m;});
+        db.ref("bakiso-2026/members").set(obj);
+        setMembers([...SEED]);
+      }
+
+      setPays(data.pays||{});
+      setDoas(Array.isArray(data.doas)?data.doas:Object.values(data.doas||{}));
+      fromFB.current = false;
+      loaded.current = true;
+      setSyncSt("online");
+    }, ()=>setSyncSt("erro"));
+
+    db.ref(".info/connected").on("value", s=>{
+      if(loaded.current) setSyncSt(s.val()?"online":"offline");
+    });
+    return()=>ref.off();
+  },[]);
+
+  const save=(newMembers,newPays,newDoas)=>{
+    if(fromFB.current||!loaded.current)return;
+    setSyncSt("salvando");
+    clearTimeout(wTimer.current);
+    wTimer.current=setTimeout(()=>{
+      const mObj={};
+      (newMembers||members).forEach(m=>{mObj[m.id]=m;});
+      db.ref("bakiso-2026").set({
+        members:mObj,
+        pays:newPays||pays,
+        doas:newDoas||doas,
+      }).then(()=>setSyncSt("online")).catch(()=>setSyncSt("erro"));
+    },600);
+  };
+
+  // ── Pagamentos ──────────────────────────────────────────────────────────────
+  const gp=(id,m)=>pays[id]?.[m]??null;
+  const tog=(id,m)=>{
+    const cur=pays[id]?.[m]??null;
+    const nxt=CICLO[(CICLO.indexOf(cur)+1)%4];
+    const np={...pays,[id]:{...(pays[id]||{}),[m]:nxt}};
+    setPays(np); save(null,np,null);
+  };
+
+  // ── Gestão de membros ───────────────────────────────────────────────────────
+  const saveMembro=(dados)=>{
+    let nm;
+    if(modalMbr==="novo"){
+      const newId = members.length>0 ? Math.max(...members.map(m=>m.id))+1 : 1;
+      nm=[...members,{...dados,id:newId}].sort((a,b)=>a.id-b.id);
+    } else {
+      nm=members.map(m=>m.id===modalMbr.id?{...m,...dados}:m);
+    }
+    setMembers(nm); save(nm,null,null); setModalMbr(null);
+  };
+
+  const deleteMembro=()=>{
+    const id=modalMbr.id;
+    const nm=members.filter(m=>m.id!==id);
+    const np={...pays}; delete np[id];
+    setMembers(nm); setPays(np);
+    save(nm,np,null); setModalMbr(null);
+  };
+
+  // ── Doações ─────────────────────────────────────────────────────────────────
+  const addDoa=()=>{
+    if(!form.nome||!form.valor)return;
+    const nd=[...doas,{...form,id:Date.now(),valor:parseFloat(form.valor)}];
+    setDoas(nd); save(null,null,nd);
+    setForm({nome:"",valor:"",descricao:"",data:"2026-05-11"}); setShowFm(false);
+  };
+
+  // ── Estatísticas ─────────────────────────────────────────────────────────────
+  const stats=m=>{
+    let esp=0,ind=0,fam=0,neg=0;
+    members.forEach(mb=>{
+      esp+=mb.taxa;
+      const s=gp(mb.id,m);
+      if(s==="I")ind+=mb.taxa;else if(s==="F")fam+=mb.taxa;else if(s==="N")neg+=mb.taxa;
+    });
+    return{esp,ind,fam,neg,arr:ind+fam+neg,ab:esp-(ind+fam+neg)};
+  };
+
+  const TM=members.reduce((s,m)=>s+m.taxa,0);
+  const st=stats(month);
+  const pct=st.esp>0?Math.round((st.arr/st.esp)*100):0;
+  const totD=doas.reduce((s,d)=>s+(+d.valor||0),0);
+
+  const chartData=MC.map((label,i)=>{
+    const s=stats(i+1);
+    return{label,arr:s.arr,prev:i+1>month?TM:0,ab:i+1<=month?s.ab:0};
+  });
+
+  const sorted=[...members]
+    .filter(mb=>!filter||mb.dijina.toLowerCase().includes(filter.toLowerCase())||mb.nome.toLowerCase().includes(filter.toLowerCase()))
+    .sort((a,b)=>sort==="nome"?a.nome.localeCompare(b.nome):sort==="taxa"?b.taxa-a.taxa:a.id-b.id);
+
+  // ── Export Excel ─────────────────────────────────────────────────────────────
+  const exportXLS=()=>{
+    const wb=XLSX.utils.book_new();
+    const h1=["#","DIJINA","NOME","TAXA",...MF,"TOTAL PAGO","ESPERADO","SALDO"];
+    const r1=members.map(mb=>{
+      const ms=MF.map((_,i)=>{const s=gp(mb.id,i+1);return s?SLBL[s]:"";});
+      const tp=MC.reduce((s,_,i)=>s+(gp(mb.id,i+1)?mb.taxa:0),0);
+      return[mb.id,mb.dijina,mb.nome,mb.taxa,...ms,tp,mb.taxa*12,tp-mb.taxa*12];
+    });
+    const ws1=XLSX.utils.aoa_to_sheet([h1,...r1]);
+    ws1["!cols"]=[{wch:4},{wch:20},{wch:22},{wch:8},...MF.map(()=>({wch:12})),{wch:12},{wch:12},{wch:10}];
+    XLSX.utils.book_append_sheet(wb,ws1,"Mensalidades 2026");
+    const h2=["MÊS","ESPERADO","INDIVIDUAL","FAMÍLIA","NEGOCIADO","ARRECADADO","EM ABERTO","ADIMPLÊNCIA"];
+    const r2=MF.map((mf,i)=>{const s=stats(i+1);return[mf,s.esp,s.ind,s.fam,s.neg,s.arr,s.ab,`${s.esp>0?Math.round((s.arr/s.esp)*100):0}%`];});
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h2,...r2]),"Resumo Mensal");
+    if(doas.length>0){
+      const ws3=XLSX.utils.aoa_to_sheet([["DATA","NOME/DIJINA","VALOR","DESCRIÇÃO"],...doas.map(d=>[d.data,d.nome,d.valor,d.descricao||""]),["TOTAL","",totD,""]]);
+      XLSX.utils.book_append_sheet(wb,ws3,"Doações");
+    }
+    XLSX.writeFile(wb,"Bakiso_Mensalidades_2026.xlsx");
+  };
+
+  // ── Estilos ──────────────────────────────────────────────────────────────────
+  const CARD={background:C.surf,border:`1px solid ${C.brd}`,borderRadius:8,boxShadow:"0 1px 4px rgba(44,18,6,.06)"};
+  const INP={background:C.surf2,border:`1px solid ${C.brd2}`,color:C.ink,borderRadius:6,padding:"8px 12px",fontSize:14,outline:"none",width:"100%"};
+  const sbtn=(on,bg=C.terra)=>({background:on?bg+"22":"transparent",border:`1px solid ${on?bg:C.brd2}`,color:on?bg:C.inkFade,borderRadius:5,padding:"5px 12px",cursor:"pointer",fontSize:12,fontWeight:on?"bold":"normal"});
+
+  const SI={conectando:{cor:"rgba(255,220,120,.7)",txt:"● Conectando…"},online:{cor:"rgba(160,255,160,.8)",txt:"● Sincronizado"},salvando:{cor:"rgba(255,220,120,.9)",txt:"● Salvando…"},offline:{cor:"rgba(255,140,140,.8)",txt:"● Offline"},erro:{cor:"rgba(255,100,100,.9)",txt:"● Erro"}};
+  const si=SI[syncSt]||SI.conectando;
+
+  return(
+    <div style={{background:C.bg,minHeight:"100vh",color:C.ink}}>
+
+      {modalPag&&<ModalPagamentos mb={modalPag} pays={pays} toggle={tog} onClose={()=>setModalPag(null)}/>}
+      {modalMbr&&<ModalMembro
+        membro={modalMbr==="novo"?null:modalMbr}
+        onSave={saveMembro}
+        onDelete={deleteMembro}
+        onClose={()=>setModalMbr(null)}
+      />}
+
+      {/* HEADER */}
+      <div style={{background:`linear-gradient(135deg,${C.siena},${C.verm} 60%,#5A1010)`,boxShadow:"0 4px 20px rgba(44,18,6,.25)"}}>
+        <Stripe/>
+        <div style={{padding:"14px 20px 12px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <div style={{width:52,height:52,borderRadius:"50%",flexShrink:0,background:`conic-gradient(${C.verm},${C.siena},${C.terra},${C.ocre},${C.dour},${C.ocre},${C.terra},${C.siena},${C.verm})`,border:"3px solid rgba(255,220,120,.5)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,boxShadow:"0 0 24px rgba(139,22,22,.6)"}}>𓂀</div>
+          <div style={{flex:1,minWidth:160}}>
+            <div style={{fontFamily:"'Cinzel',serif",fontSize:15,fontWeight:700,letterSpacing:2,color:C.branco,textTransform:"uppercase"}}>Bakiso Gunzo Nria Nzazi</div>
+            <div style={{fontSize:11,color:"rgba(255,220,170,.8)",letterSpacing:1,marginTop:2}}>Nação Angola · Família Mazambe · 2026</div>
+          </div>
+          <div style={{fontSize:11,color:si.cor,whiteSpace:"nowrap"}}>{si.txt}</div>
+          <button onClick={exportXLS} style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,220,120,.5)",color:C.branco,borderRadius:7,padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:"'Cinzel',serif",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{fontSize:14}}>⬇</span> Excel
+          </button>
+        </div>
+        <Stripe/>
+      </div>
+
+      {/* SELETOR DE MÊS */}
+      <div style={{background:C.bgAlt,borderBottom:`1px solid ${C.brd}`,padding:"10px 20px",overflowX:"auto"}}>
+        <div style={{display:"flex",gap:5,minWidth:"max-content"}}>
+          {MC.map((m,i)=>{
+            const s=stats(i+1);const act=month===i+1;const fut=i+1>5;
+            return(
+              <button key={m} onClick={()=>setMonth(i+1)} style={{background:act?`linear-gradient(135deg,${C.terra},${C.siena})`:C.surf,border:`1px solid ${act?C.terra:C.brd}`,color:act?C.branco:C.inkMid,borderRadius:6,padding:"6px 10px",cursor:"pointer",fontSize:12,minWidth:44,textAlign:"center",boxShadow:act?`0 2px 10px ${C.terra}55`:"none",opacity:fut?.7:1,transition:"all .15s"}}>
+                <div style={{fontWeight:act?"bold":"normal"}}>{m}</div>
+                <div style={{fontSize:9,marginTop:2,color:act?"rgba(255,230,180,.9)":s.arr>0?C.terra:C.inkFade}}>{s.arr>0?(s.arr/1000).toFixed(1)+"k":fut?"prev.":"—"}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ABAS */}
+      <div style={{background:C.surf,borderBottom:`2px solid ${C.brd}`,padding:"0 20px",display:"flex",overflowX:"auto"}}>
+        {[["painel","Painel"],["membros","Membros"],["emdia","Em Dia"],["emaberto","Em Aberto"],["doacoes","Doações"]].map(([k,l])=>(
+          <button key={k} onClick={()=>setTab(k)} style={{background:"transparent",color:tab===k?C.siena:C.inkFade,border:"none",borderBottom:`3px solid ${tab===k?C.terra:"transparent"}`,padding:"11px 16px",cursor:"pointer",fontSize:13,fontFamily:"'Cinzel',serif",letterSpacing:.5,whiteSpace:"nowrap"}}>{l}</button>
+        ))}
+      </div>
+
+      {/* CONTEÚDO */}
+      <div style={{padding:"20px",maxWidth:1100,margin:"0 auto"}}>
+
+        {/* ── PAINEL ── */}
+        {tab==="painel"&&(
+          <div>
+            <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:18}}>
+              <span style={{fontFamily:"'Cinzel',serif",fontSize:22,color:C.siena}}>{MF[month-1]}</span>
+              <span style={{color:C.inkFade,fontSize:14}}>2026</span>
+              {month>5&&<span style={{fontSize:11,background:C.ocre+"22",color:C.ocre,border:`1px solid ${C.ocre}66`,borderRadius:4,padding:"2px 10px"}}>Previsão</span>}
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(148px,1fr))",gap:10,marginBottom:18}}>
+              {[
+                {l:"Receita esperada",v:fmt(st.esp),  c:C.inkMid},
+                {l:"Arrecadado",      v:fmt(st.arr),  c:C.ok},
+                {l:"Em aberto",       v:fmt(st.ab),   c:st.ab>0?C.terra:C.ok},
+                {l:"Adimplência",     v:`${pct}%`,    c:pct>=80?C.ok:pct>=50?C.ocre:C.terra},
+                {l:"Individual",      v:fmt(st.ind),  c:C.stIFg},
+                {l:"Família",         v:fmt(st.fam),  c:C.stFFg},
+                {l:"Negociado",       v:fmt(st.neg),  c:C.stNFg},
+                {l:"Membros",         v:members.length,c:C.inkMid},
+              ].map(c=>(
+                <div key={c.l} style={{...CARD,padding:"13px 16px",textAlign:"center"}}>
+                  <div style={{fontSize:10,color:C.inkFade,letterSpacing:1,textTransform:"uppercase",marginBottom:5}}>{c.l}</div>
+                  <div style={{fontSize:19,fontWeight:"bold",color:c.c,fontFamily:"'Cinzel',serif"}}>{c.v}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{...CARD,padding:"15px 20px",marginBottom:14,borderLeft:`4px solid ${C.terra}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:8,fontSize:12}}>
+                <span style={{fontFamily:"'Cinzel',serif",fontSize:11,letterSpacing:1,color:C.siena}}>PROGRESSO — {MF[month-1].toUpperCase()}</span>
+                <span style={{color:C.terra,fontWeight:"bold",fontSize:15}}>{pct}%</span>
+              </div>
+              <div style={{background:C.bgAlt,borderRadius:5,height:14,overflow:"hidden"}}>
+                <div style={{height:"100%",borderRadius:5,transition:"width .5s",width:`${Math.min(pct,100)}%`,background:`linear-gradient(90deg,${C.verm},${C.siena},${C.terra},${C.ocre},${C.dour})`}}/>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:7,fontSize:11,color:C.inkFade}}>
+                <span><strong style={{color:C.ok}}>{fmt(st.arr)}</strong> · {members.filter(mb=>gp(mb.id,month)!==null).length} em dia</span>
+                <span><strong style={{color:C.terra}}>{fmt(st.ab)}</strong> · {members.filter(mb=>gp(mb.id,month)===null).length} em aberto</span>
+              </div>
+            </div>
+            <div style={{...CARD,padding:"16px 20px",marginBottom:14}}>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:11,color:C.inkFade,letterSpacing:1.5,textTransform:"uppercase",marginBottom:12}}>Arrecadação Anual — 2026</div>
+              <BarChart data={chartData} activeMonth={month}/>
+              <div style={{display:"flex",gap:18,fontSize:11,color:C.inkFade,marginTop:8}}>
+                <span><span style={{display:"inline-block",width:10,height:10,background:C.terra,borderRadius:2,marginRight:4}}></span>Arrecadado</span>
+                <span><span style={{display:"inline-block",width:10,height:10,background:C.ocre+"55",borderRadius:2,marginRight:4}}></span>Previsão</span>
+                <span><span style={{display:"inline-block",width:10,height:10,background:C.terra+"55",borderRadius:2,marginRight:4}}></span>Em aberto</span>
+              </div>
+            </div>
+            <div style={{...CARD,padding:"15px 20px"}}>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:11,color:C.inkFade,letterSpacing:1.5,textTransform:"uppercase",marginBottom:14}}>Acumulado Anual</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
+                {(()=>{let ar=0,es=0;for(let m=1;m<=month;m++){const s=stats(m);ar+=s.arr;es+=s.esp;}
+                  return[{l:"Real arrecadado",v:fmt(ar),c:C.ok},{l:"Esperado no período",v:fmt(es),c:C.inkMid},{l:"Projeção anual",v:fmt(TM*12),c:C.siena}].map(c=>(
+                    <div key={c.l} style={{textAlign:"center",padding:"12px",background:C.surf2,borderRadius:8}}>
+                      <div style={{fontSize:10,color:C.inkFade,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>{c.l}</div>
+                      <div style={{fontSize:17,color:c.c,fontWeight:"bold",fontFamily:"'Cinzel',serif"}}>{c.v}</div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── MEMBROS ── */}
+        {tab==="membros"&&(
+          <div>
+            <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
+              <input placeholder="Buscar dijina ou nome…" value={filter} onChange={e=>setFilter(e.target.value)} style={{...INP,flex:1,minWidth:160}}/>
+              <div style={{display:"flex",gap:5}}>
+                {[["id","#"],["nome","Nome"],["taxa","Taxa"]].map(([f,l])=>(
+                  <button key={f} onClick={()=>setSort(f)} style={sbtn(sort===f)}>{l}</button>
+                ))}
+              </div>
+              <button onClick={()=>setModalMbr("novo")} style={{
+                background:C.ok+"22",border:`2px solid ${C.ok}`,color:C.ok,
+                borderRadius:6,padding:"7px 16px",cursor:"pointer",
+                fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:"bold",whiteSpace:"nowrap",
+              }}>+ Novo membro</button>
+            </div>
+            <div style={{fontSize:11,color:C.inkFade,marginBottom:10,padding:"7px 12px",background:C.surf2,borderRadius:6,border:`1px solid ${C.brd}`,lineHeight:1.7}}>
+              ◆ Toque na <strong style={{color:C.terra}}>dijina</strong> para registrar pagamentos por mês.
+              &ensp;·&ensp; Use <strong style={{color:C.siena}}>✏</strong> para editar dados ou excluir o membro.
+              &ensp;·&ensp; Toque no <strong>status</strong> para alternar só {MC[month-1]}.
+            </div>
+            <div style={{...CARD,padding:0,overflow:"hidden"}}>
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",fontSize:13,minWidth:520,borderCollapse:"collapse"}}>
+                  <thead>
+                    <tr style={{background:C.bgAlt,borderBottom:`2px solid ${C.brd2}`}}>
+                      {["#","DIJINA","NOME","TAXA","STATUS",""].map(h=>(
+                        <th key={h} style={{padding:"10px 12px",textAlign:"left",color:C.siena,fontSize:10,fontWeight:"normal",letterSpacing:1.5,fontFamily:"'Cinzel',serif",whiteSpace:"nowrap"}}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sorted.map((mb,i)=>{
+                      const s=gp(mb.id,month);
+                      const mp=MC.filter((_,j)=>gp(mb.id,j+1)!==null).length;
+                      return(
+                        <tr key={mb.id} style={{borderBottom:`1px solid ${C.brd}`,background:i%2===0?C.surf:C.surf2}}>
+                          <td style={{padding:"9px 12px",color:C.inkFade,fontSize:11}}>{mb.id}</td>
+                          <td style={{padding:"9px 12px"}}>
+                            <button onClick={()=>setModalPag(mb)} style={{background:"transparent",border:"none",padding:0,cursor:"pointer",color:C.siena,fontStyle:"italic",fontFamily:"inherit",fontSize:14,textAlign:"left"}}>
+                              {mb.dijina}
+                              {mp>0&&<span style={{fontSize:10,color:C.terra,marginLeft:6,fontStyle:"normal",background:C.terra+"18",borderRadius:3,padding:"1px 5px"}}>{mp}/12</span>}
+                            </button>
+                          </td>
+                          <td style={{padding:"9px 12px",color:C.ink}}>{mb.nome}</td>
+                          <td style={{padding:"9px 12px",color:C.inkFade,textAlign:"center",whiteSpace:"nowrap"}}>R${mb.taxa}</td>
+                          <td style={{padding:"9px 12px"}}><Pill st={s} onClick={()=>tog(mb.id,month)}/></td>
+                          <td style={{padding:"9px 8px",textAlign:"center"}}>
+                            <button onClick={()=>setModalMbr(mb)} title="Editar membro" style={{background:"transparent",border:"none",cursor:"pointer",fontSize:15,color:C.ocre,padding:"2px 6px"}}>✏</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── EM DIA ── */}
+        {tab==="emdia"&&(()=>{
+          const lista=members.filter(mb=>gp(mb.id,month)!==null);
+          return(
+            <div>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:13,color:C.siena,marginBottom:16,letterSpacing:1}}>ADIMPLENTES — {MF[month-1].toUpperCase()} 2026</div>
+              {lista.length===0
+                ?<div style={{...CARD,padding:36,textAlign:"center",color:C.inkFade}}>Nenhum pagamento registrado para {MF[month-1]}.</div>
+                :<div>
+                  <div style={{...CARD,padding:"15px 20px",marginBottom:14,display:"flex",gap:32,borderLeft:`4px solid ${C.ok}`}}>
+                    <div><div style={{fontSize:10,color:C.inkFade,textTransform:"uppercase",letterSpacing:1}}>Em dia</div><div style={{fontSize:26,color:C.ok,fontFamily:"'Cinzel',serif"}}>{lista.length}</div></div>
+                    <div><div style={{fontSize:10,color:C.inkFade,textTransform:"uppercase",letterSpacing:1}}>Recolhido</div><div style={{fontSize:26,color:C.siena,fontFamily:"'Cinzel',serif"}}>{fmt(lista.reduce((s,mb)=>s+mb.taxa,0))}</div></div>
+                  </div>
+                  <Divider/>
+                  <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
+                    {lista.map(mb=>(
+                      <div key={mb.id} onClick={()=>setModalPag(mb)} style={{...CARD,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",cursor:"pointer"}}>
+                        <div><span style={{color:C.siena,fontStyle:"italic",marginRight:10,fontSize:14}}>{mb.dijina}</span><span style={{color:C.ink}}>{mb.nome}</span></div>
+                        <div style={{display:"flex",gap:10,alignItems:"center"}}><span style={{color:C.inkFade,fontSize:12}}>R${mb.taxa}</span><Pill st={gp(mb.id,month)}/></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              }
+            </div>
+          );
+        })()}
+
+        {/* ── EM ABERTO ── */}
+        {tab==="emaberto"&&(()=>{
+          const lista=members.filter(mb=>gp(mb.id,month)===null);
+          return(
+            <div>
+              <div style={{fontFamily:"'Cinzel',serif",fontSize:13,color:C.siena,marginBottom:16,letterSpacing:1}}>PENDÊNCIAS — {MF[month-1].toUpperCase()} 2026</div>
+              <div style={{...CARD,padding:"15px 20px",marginBottom:14,display:"flex",gap:32,borderLeft:`4px solid ${C.terra}`}}>
+                <div><div style={{fontSize:10,color:C.inkFade,textTransform:"uppercase",letterSpacing:1}}>Em aberto</div><div style={{fontSize:26,color:C.terra,fontFamily:"'Cinzel',serif"}}>{lista.length}</div></div>
+                <div><div style={{fontSize:10,color:C.inkFade,textTransform:"uppercase",letterSpacing:1}}>Valor pendente</div><div style={{fontSize:26,color:C.terra,fontFamily:"'Cinzel',serif"}}>{fmt(lista.reduce((s,mb)=>s+mb.taxa,0))}</div></div>
+              </div>
+              <Divider color={C.terra}/>
+              <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
+                {lista.map(mb=>(
+                  <div key={mb.id} onClick={()=>setModalPag(mb)} style={{...CARD,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",cursor:"pointer"}}>
+                    <div><span style={{color:C.siena,fontStyle:"italic",marginRight:10,fontSize:14}}>{mb.dijina}</span><span style={{color:C.ink}}>{mb.nome}</span></div>
+                    <div style={{display:"flex",gap:10,alignItems:"center"}}><span style={{color:C.inkFade,fontSize:12}}>R${mb.taxa}</span><span style={{fontSize:11,color:C.terra,fontWeight:"bold"}}>↗ registrar</span></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ── DOAÇÕES ── */}
+        {tab==="doacoes"&&(
+          <div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18,flexWrap:"wrap",gap:10}}>
+              <div>
+                <div style={{fontFamily:"'Cinzel',serif",fontSize:13,color:C.siena,letterSpacing:1}}>DOAÇÕES E CONTRIBUIÇÕES EXTRAS</div>
+                <div style={{color:C.siena,fontSize:22,marginTop:4,fontFamily:"'Cinzel',serif",fontWeight:"bold"}}>{fmt(totD)}</div>
+              </div>
+              <button onClick={()=>setShowFm(f=>!f)} style={{background:showFm?C.verm+"22":C.terra+"22",border:`2px solid ${showFm?C.verm:C.terra}`,color:showFm?C.verm:C.siena,borderRadius:7,padding:"9px 20px",cursor:"pointer",fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:"bold"}}>
+                {showFm?"✕ Cancelar":"+ Registrar doação"}
+              </button>
+            </div>
+            {showFm&&(
+              <div style={{...CARD,padding:"18px 22px",marginBottom:18,borderLeft:`4px solid ${C.ocre}`}}>
+                <div style={{fontFamily:"'Cinzel',serif",fontSize:12,color:C.siena,marginBottom:14,letterSpacing:1}}>NOVA DOAÇÃO</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:12}}>
+                  {[{l:"Nome / Dijina",k:"nome",t:"text",p:"Quem contribuiu"},{l:"Valor (R$)",k:"valor",t:"number",p:"0,00"},{l:"Data",k:"data",t:"date",p:""},{l:"Descrição",k:"descricao",t:"text",p:"Finalidade (opcional)"}].map(f=>(
+                    <div key={f.k}><div style={{fontSize:10,color:C.inkFade,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>{f.l}</div>
+                    <input type={f.t} placeholder={f.p} value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))} style={INP}/></div>
+                  ))}
+                </div>
+                <div style={{marginTop:14,display:"flex",gap:8}}>
+                  <button onClick={addDoa} style={{background:C.ok+"22",border:`2px solid ${C.ok}`,color:C.ok,borderRadius:6,padding:"8px 22px",cursor:"pointer",fontFamily:"'Cinzel',serif",fontSize:12,fontWeight:"bold"}}>Salvar</button>
+                  <button onClick={()=>setShowFm(false)} style={sbtn(false)}>Cancelar</button>
+                </div>
+              </div>
+            )}
+            {doas.length===0
+              ?<div style={{...CARD,padding:36,textAlign:"center",color:C.inkFade}}>Nenhuma doação registrada ainda.</div>
+              :<div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {[...doas].reverse().map((d,i)=>(
+                  <div key={d.id||i} style={{...CARD,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 20px"}}>
+                    <div>
+                      <div style={{color:C.ink,fontSize:15}}>{d.nome}</div>
+                      {d.descricao&&<div style={{fontSize:12,color:C.inkFade,marginTop:2}}>{d.descricao}</div>}
+                      <div style={{fontSize:11,color:C.inkFade,marginTop:3}}>{d.data}</div>
+                    </div>
+                    <div style={{fontSize:22,color:C.siena,fontFamily:"'Cinzel',serif",fontWeight:"bold"}}>{fmt(d.valor)}</div>
+                  </div>
+                ))}
+              </div>
+            }
+          </div>
+        )}
+
+      </div>
+
+      {/* RODAPÉ */}
+      <div style={{marginTop:32}}>
+        <Stripe/>
+        <div style={{textAlign:"center",padding:"14px 20px",fontSize:11,color:C.inkFade,fontFamily:"'Cinzel',serif",letterSpacing:2,background:C.bgAlt}}>
+          BAKISO GUNZO NRIA NZAZI · NAÇÃO ANGOLA · FAMÍLIA MAZAMBE · 2026
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
