@@ -1,0 +1,22 @@
+{
+  "name": "Bakiso - Cobranças",
+  "short_name": "Bakiso",
+  "description": "Aplicativo para gestão e cobrança de mensalidades do Bakiso",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#b87333",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "bakiso-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "bakiso-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
